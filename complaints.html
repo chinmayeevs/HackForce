@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Complaints — Mysuru Civic Connect</title>
+<meta name="description" content="Track the civic complaints you've reported in Mysuru.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="complaints.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTpjMzUwYjdmYy1jOTdkLTQ5YWUtOGQ3Zi1kMDM3ZTVmZTAyMTEAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaB5/yW/AlwDirQ1IuNkeAzkAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo1ZjMzNzg4My00MWNjLTRlYzYtOWU4NC0yNGVjNzE2MzcxMGZscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoY81urSBFQ2VcQg12m3pK9AAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggdRZGzbBCd13shA9JalPG3meERudH0aX1fs+gvWC1JdKkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaDSEsYJfs5Y4hnU7UX3SGAUAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCBaamYLZ2JUA7dH5x+gTAnkkp9YrcB7yN5euZPcFr5OoWRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBiGZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmMzNTBiN2ZjLWM5N2QtNDlhZS04ZDdmLWQwMzdlNWZlMDIxMS9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmI0MzYzM2QxLTkwMGMtNGU3Mi1iYWJhLWI5Njc3MjI1MzJlNnJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCB1FkbNsEJ3XeyED0lqU8beZ4RG50fRpfV+z6C9YLUl0qJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFgg0xa3cEZiu5KPo68ReppsFMG936ipt+lVEIVSIdlBVraiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFgg2j+7MRRi10lKjXaPDXxZHMybEmZoWEpASkyAykMMYNJ0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQDURiZJaun7oHKi/VLUTvNKD6XfUT6zMuSEdmHSMdsGPfjsyISlcELVR1p6FJ1lBFcUVR7llUacuFRwmXKCDgu8=</c2pa:manifest></metadata>
+<defs>
+<symbol id="doodle-plant" viewBox="0 0 100 110">
+  <path d="M28 78 L72 78 L65 105 L35 105 Z"/>
+  <path d="M50 78 C48 60 55 52 50 38 C45 30 50 20 50 14"/>
+  <path d="M50 55 C38 52 32 42 34 30 C46 32 52 42 50 55 Z"/>
+  <path d="M50 44 C62 40 70 30 68 18 C55 20 48 30 50 44 Z"/>
+  <path d="M50 68 C40 66 34 58 36 48 C47 50 52 58 50 68 Z"/>
+</symbol>
+<symbol id="doodle-leaf" viewBox="0 0 60 60">
+  <path d="M6 54 C6 30 22 8 54 6 C52 36 32 52 6 54 Z"/>
+  <path d="M10 50 C24 38 34 26 50 10"/>
+</symbol>
+<symbol id="doodle-sprout" viewBox="0 0 60 70">
+  <path d="M4 66 H56"/>
+  <path d="M30 66 C30 48 30 40 30 22"/>
+  <path d="M30 40 C18 38 12 28 15 16 C27 19 32 29 30 40 Z"/>
+  <path d="M30 30 C42 27 47 17 44 6 C33 9 28 19 30 30 Z"/>
+</symbol>
+<symbol id="doodle-watering-can" viewBox="0 0 120 100">
+  <path d="M18 50 C18 38 28 30 44 30 C60 30 68 38 68 50 L68 78 C68 84 63 88 57 88 L29 88 C23 88 18 84 18 78 Z"/>
+  <path d="M64 42 L98 30"/>
+  <path d="M98 30 C102 28 106 28 108 32"/>
+  <ellipse cx="112" cy="24" rx="3" ry="4"/>
+  <ellipse cx="104" cy="16" rx="2.4" ry="3.2"/>
+  <path d="M40 30 C40 20 46 14 54 16 C58 10 66 9 70 15"/>
+  <path d="M30 60 H56"/>
+</symbol>
+<symbol id="doodle-broom" viewBox="0 0 90 120">
+  <path d="M62 8 L26 96"/>
+  <path d="M26 96 L10 116 M22 100 L8 108 M31 92 L20 112 M35 88 L28 116 M40 84 L38 116"/>
+  <path d="M60 6 C64 4 68 6 68 10 C68 14 64 16 60 14"/>
+</symbol>
+<symbol id="doodle-tree" viewBox="0 0 100 140">
+  <path d="M20 70 C15 50 30 35 48 38 C52 22 78 22 82 40 C98 40 102 60 90 70 C100 82 90 98 74 96 C70 108 34 108 30 96 C14 98 8 82 20 70 Z"/>
+  <path d="M50 96 C48 112 52 122 50 138"/>
+</symbol>
+<symbol id="doodle-bench" viewBox="0 0 120 70">
+  <path d="M15 20 V50 M105 20 V50"/>
+  <path d="M15 24 H105 M15 34 H105"/>
+  <path d="M10 50 H110 M10 58 H110"/>
+  <path d="M18 58 V68 M102 58 V68"/>
+</symbol>
+<symbol id="doodle-dustbin" viewBox="0 0 60 80">
+  <path d="M12 78 L48 78 L44 30 L16 30 Z"/>
+  <path d="M10 30 C10 24 50 24 50 30"/>
+  <path d="M26 24 C26 20 34 20 34 24"/>
+  <path d="M20 38 V70 M30 38 V72 M40 38 V70"/>
+</symbol>
+<symbol id="doodle-bird" viewBox="0 0 40 20">
+  <path d="M4 14 C10 4 14 4 20 14 C26 4 30 4 36 14"/>
+</symbol>
+<symbol id="doodle-flowerbed" viewBox="0 0 160 70">
+  <path d="M25 68 V42"/>
+  <circle cx="25" cy="35" r="6"/>
+  <path d="M19 35 L11 32 M31 35 L39 32 M25 29 L23 21 M25 29 L29 22"/>
+  <path d="M80 68 V26"/>
+  <circle cx="80" cy="19" r="6.5"/>
+  <path d="M73.5 19 L64 16 M86.5 19 L96 16 M80 12.5 L78 4 M80 12.5 L83 4"/>
+  <path d="M130 68 V46"/>
+  <circle cx="130" cy="39" r="5.5"/>
+  <path d="M124.5 39 L116 37 M135.5 39 L144 37 M130 33.5 L128 26 M130 33.5 L132 26"/>
+</symbol>
+<symbol id="doodle-butterfly" viewBox="0 0 50 36">
+  <path d="M25 8 V30"/>
+  <path d="M25 12 C10 3 2 15 12 21 C18 25 24 21 25 15"/>
+  <path d="M25 12 C40 3 48 15 38 21 C32 25 26 21 25 15"/>
+  <path d="M23 8 C21 4 19 4 18 6 M27 8 C29 4 31 4 32 6"/>
+</symbol>
+<symbol id="doodle-grass" viewBox="0 0 400 34" preserveAspectRatio="none">
+  <path d="M0 30 C 10 14, 16 14, 20 30" />
+  <path d="M28 30 C 34 10, 42 10, 46 30" />
+  <path d="M58 30 C 64 18, 70 18, 74 30" />
+  <path d="M90 30 C 96 8, 106 8, 110 30" />
+  <path d="M124 30 C 130 16, 136 16, 140 30" />
+  <path d="M156 30 C 162 12, 170 12, 176 30" />
+  <path d="M190 30 C 196 18, 202 18, 208 30" />
+  <path d="M222 30 C 228 8, 238 8, 242 30" />
+  <path d="M256 30 C 262 16, 268 16, 272 30" />
+  <path d="M288 30 C 294 12, 302 12, 308 30" />
+  <path d="M322 30 C 328 18, 334 18, 338 30" />
+  <path d="M354 30 C 360 8, 370 8, 374 30" />
+  <path d="M386 30 C 392 16, 398 16, 400 30" />
+  <circle cx="46" cy="12" r="2.4"/>
+  <circle cx="176" cy="10" r="2.4"/>
+  <circle cx="308" cy="12" r="2.4"/>
+</symbol>
+<symbol id="doodle-footer-scene" viewBox="0 0 1200 190">
+  <path d="M0 150 C150 112 300 132 450 116 C600 100 750 130 900 112 C1050 96 1150 118 1200 106 V190 H0 Z" fill="currentColor" fill-opacity="0.06" stroke="none"/>
+  <path d="M0 165 H1200"/>
+  <use href="#doodle-bird" x="110" y="18" width="42" height="21"/>
+  <use href="#doodle-bird" x="470" y="8" width="34" height="17"/>
+  <use href="#doodle-bird" x="890" y="26" width="30" height="15"/>
+  <use href="#doodle-tree" x="18" y="18" width="112" height="152"/>
+  <use href="#doodle-bench" x="185" y="94" width="130" height="76"/>
+  <use href="#doodle-flowerbed" x="330" y="98" width="150" height="67"/>
+  <use href="#doodle-butterfly" x="420" y="56" width="42" height="30"/>
+  <use href="#doodle-dustbin" x="515" y="88" width="56" height="77"/>
+  <use href="#doodle-broom" x="558" y="50" width="70" height="116"/>
+  <use href="#doodle-sprout" x="655" y="102" width="56" height="63"/>
+  <use href="#doodle-sprout" x="698" y="110" width="42" height="48"/>
+  <use href="#doodle-watering-can" x="758" y="102" width="98" height="62"/>
+  <use href="#doodle-tree" x="895" y="32" width="92" height="134"/>
+  <use href="#doodle-butterfly" x="985" y="42" width="38" height="27"/>
+  <use href="#doodle-plant" x="1005" y="68" width="105" height="98"/>
+  <use href="#doodle-leaf" x="250" y="24" width="30" height="30" transform="rotate(18 265 39)"/>
+  <use href="#doodle-leaf" x="1120" y="120" width="26" height="26" transform="rotate(-24 1133 133)"/>
+</symbol>
+</defs>
+</svg>
+
+<header class="site-header">
+  <div class="container navbar">
+    <a href="citizen.html" class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/>
+          <circle cx="12" cy="10" r="2.5"/>
+        </svg>
+      </span>
+      Mysuru Civic Connect
+    </a>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle navigation menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="citizen.html">Home</a>
+      <a href="report.html">Report a Problem</a>
+      <a href="complaints.html" class="active">Complaints List</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container page-header">
+    <svg class="doodle doodle--page-sprout" aria-hidden="true"><use href="#doodle-watering-can"/></svg>
+    <a href="citizen.html" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      Back to Home
+    </a>
+    <h1>Your Complaints</h1>
+    <p class="subtitle">Everything you've reported, and where each one has reached.</p>
+  </div>
+
+  <div class="container complaints-wrap">
+
+    <svg class="doodle doodle--filter-leaf" aria-hidden="true"><use href="#doodle-leaf"/></svg>
+    <div class="filter-bar" style="position:relative;">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="PENDING">Pending</button>
+      <button class="filter-btn" data-filter="ACCEPTED">Accepted</button>
+      <button class="filter-btn" data-filter="REJECTED">Rejected</button>
+      <button class="filter-btn" data-filter="COMPLETED">Completed</button>
+    </div>
+
+    <!-- Complaint cards get inserted here by complaints.js -->
+    <div id="complaintList" class="complaint-list"></div>
+
+    <div id="emptyMessage" class="empty-state" hidden>
+      <svg class="doodle--empty-can" viewBox="0 0 100 110" aria-hidden="true"><use href="#doodle-plant"/></svg>
+      <p class="empty-title">No complaints match this filter.</p>
+      <p>Reported problems will show up here with their status and progress.</p>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <svg class="doodle doodle--footer-scene" viewBox="0 0 1200 190" aria-hidden="true"><use href="#doodle-footer-scene"/></svg>
+  <div class="container footer-inner">
+    <div>
+      <p class="footer-brand">Mysuru Civic Connect</p>
+      <p class="footer-tagline">Building a more connected Mysuru.</p>
+    </div>
+    <p class="footer-copy">© 2026 Mysuru Civic Connect</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script src="api.js"></script>
+<script src="complaints.js"></script>
+</body>
+</html>

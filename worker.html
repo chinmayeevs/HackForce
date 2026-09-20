@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mysuru Civic Operations Control Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    /* Mysuru Civic Connect palette — same green/white theme and
+       tokens as style.css (see :root there), remapped onto the
+       zinc/emerald/status scales this dashboard's markup already
+       uses, so every existing utility class (including the ones
+       built dynamically in JS below) picks up the new theme with
+       no markup changes required. */
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Public Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
+          },
+          colors: {
+            zinc: {
+              950: '#ffffff',
+              900: '#f5faf6',
+              850: '#eaf4ec',
+              800: '#dce8de',
+              700: '#b9d2bd',
+              600: '#8fae95',
+              500: '#85978a',
+              400: '#58685c',
+              300: '#26342a'
+            },
+            emerald: {
+              950: '#eaf4ec',
+              900: '#d9f0df',
+              800: '#c3e6cc',
+              600: '#2f7d4f',
+              500: '#4d9c6c',
+              400: '#1e5c37',
+              300: '#1e5c37'
+            },
+            red:    { 950: '#fbeaea', 400: '#a13d3d' },
+            blue:   { 950: '#e6effe', 400: '#1d4ed8' },
+            yellow: { 950: '#fef3c7', 400: '#92660b' },
+            orange: { 950: '#fdf0e2', 400: '#a3560e' },
+            purple: { 950: '#f1e9fb', 400: '#7e3fc4', 300: '#7e3fc4' },
+            amber:  { 400: '#92660b' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    .leaflet-container { background: #eaf4ec !important; }
+    .status-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #b9d2bd; border-radius: 3px; }
+    .card-hover:hover { border-color: #2f7d4f; }
+    .inbox-tab.active {
+      background: rgba(47, 125, 79, 0.12);
+      color: #1e5c37;
+      border-color: #2f7d4f;
+    }
+    /* Hand-drawn accent doodles — same idea as the .doodle symbols
+       on index.html, just scoped locally since this page doesn't
+       load style.css. */
+    .civic-doodle {
+      position: absolute;
+      pointer-events: none;
+      z-index: 0;
+      fill: none;
+      stroke: #2f7d4f;
+      color: #2f7d4f;
+    }
+    .civic-doodle--header  { width: 64px; height: 64px; right: 14px; top: -10px; opacity: 0.1; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-300 h-screen overflow-hidden">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="doodle-plant" viewBox="0 0 100 110">
+  <path d="M28 78 L72 78 L65 105 L35 105 Z"/>
+  <path d="M50 78 C48 60 55 52 50 38 C45 30 50 20 50 14"/>
+  <path d="M50 55 C38 52 32 42 34 30 C46 32 52 42 50 55 Z"/>
+  <path d="M50 44 C62 40 70 30 68 18 C55 20 48 30 50 44 Z"/>
+  <path d="M50 68 C40 66 34 58 36 48 C47 50 52 58 50 68 Z"/>
+</symbol>
+<symbol id="doodle-leaf" viewBox="0 0 60 60">
+  <path d="M6 54 C6 30 22 8 54 6 C52 36 32 52 6 54 Z"/>
+  <path d="M10 50 C24 38 34 26 50 10"/>
+</symbol>
+<symbol id="doodle-sprout" viewBox="0 0 60 70">
+  <path d="M4 66 H56"/>
+  <path d="M30 66 C30 48 30 40 30 22"/>
+  <path d="M30 40 C18 38 12 28 15 16 C27 19 32 29 30 40 Z"/>
+  <path d="M30 30 C42 27 47 17 44 6 C33 9 28 19 30 30 Z"/>
+</symbol>
+</defs>
+</svg>
+
+<div class="flex flex-col h-full">
+
+  <!-- HEADER (brand on the left, nav tabs on the right; search sits in its own row below — swapped per request) -->
+  <header class="bg-zinc-900 border-b border-zinc-800 shrink-0 relative overflow-hidden">
+    <svg class="civic-doodle civic-doodle--header" aria-hidden="true"><use href="#doodle-leaf"/></svg>
+
+    <div class="h-16 flex items-center justify-between px-6 relative gap-4">
+      <div class="flex items-center gap-3 min-w-0 shrink-0">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-400 flex items-center justify-center shrink-0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/>
+            <circle cx="12" cy="10" r="2.5"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <div class="text-emerald-400 font-bold text-sm tracking-wide leading-tight">MYSURU CIVIC OPS</div>
+          <div class="text-[11px] text-zinc-500 leading-tight truncate" id="page-title">Authority Control Center</div>
+        </div>
+      </div>
+
+      <nav class="flex items-center gap-1 relative text-sm overflow-x-auto" id="nav">
+        <button onclick="showView('dashboard')" class="nav-btn px-3.5 py-2 rounded-lg bg-emerald-900 text-emerald-400 font-semibold whitespace-nowrap" data-view="dashboard">Dashboard</button>
+        <button onclick="showView('inbox')" class="nav-btn px-3.5 py-2 rounded-lg hover:bg-zinc-800 text-zinc-400 whitespace-nowrap" data-view="inbox">Complaint Inbox</button>
+        <button onclick="showView('map')" class="nav-btn px-3.5 py-2 rounded-lg hover:bg-zinc-800 text-zinc-400 whitespace-nowrap" data-view="map">Map</button>
+        <button onclick="showView('analytics')" class="nav-btn px-3.5 py-2 rounded-lg hover:bg-zinc-800 text-zinc-400 whitespace-nowrap" data-view="analytics">Analytics</button>
+      </nav>
+    </div>
+
+    <div class="flex items-center px-6 pb-3 relative">
+      <input id="global-search" type="text" placeholder="Search ID, area, category..." class="bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-sm w-72 focus:outline-none focus:border-emerald-500" oninput="applyFilters()" />
+      <span class="ml-auto text-[11px] text-zinc-500 pl-3 whitespace-nowrap" id="logged-in-ward-label">HackMysuru MVP · Demo Data</span>
+      <button onclick="workerLogout()" class="ml-4 text-[11px] px-3 py-1.5 rounded-lg border border-zinc-700 hover:border-red-600 text-zinc-400 whitespace-nowrap" title="Sign out">Logout</button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="flex-1 overflow-auto p-6" id="content"></main>
+
+</div>
+
+
+<!-- WORKER MODAL -->
+<div id="worker-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-[9999]">
+  <div class="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl">
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h2 class="text-lg font-semibold">Assign Field Worker</h2>
+        <p class="text-sm text-zinc-400 mt-1" id="modal-complaint-info"></p>
+      </div>
+      <button onclick="closeWorkerModal()" class="text-zinc-400 hover:text-emerald-600 text-xl">&times;</button>
+    </div>
+    <div id="worker-list" class="space-y-3 max-h-72 overflow-auto mb-6"></div>
+    <div class="flex gap-3">
+      <button onclick="closeWorkerModal()" class="flex-1 py-2.5 rounded-lg border border-zinc-600 text-sm">Cancel</button>
+      <button id="confirm-assign-btn" onclick="confirmAssign()" disabled class="flex-1 py-2.5 rounded-lg bg-yellow-600 hover:bg-yellow-500 disabled:opacity-40 text-sm font-medium">CONFIRM → IN PROGRESS</button>
+    </div>
+    <p class="text-[10px] text-center text-zinc-500 mt-3">Workers are MVP/demo data for HackMysuru — not official roster.</p>
+  </div>
+</div>
+
+<!-- DETAIL DRAWER -->
+<div id="detail-drawer" class="fixed inset-y-0 right-0 w-[480px] bg-zinc-900 border-l border-zinc-700 shadow-2xl transform translate-x-full transition-transform duration-300 z-[9998] flex flex-col">
+  <div class="p-5 border-b border-zinc-800 flex justify-between items-center">
+    <h2 class="font-semibold text-lg">Complaint Detail</h2>
+    <button onclick="closeDetail()" class="text-zinc-400 hover:text-emerald-600 text-2xl leading-none">&times;</button>
+  </div>
+  <div class="flex-1 overflow-auto p-5" id="detail-body"></div>
+</div>
+
+<script src="api.js"></script>
+<script>
+// ===================== AUTH GUARD =====================
+// Set by the authority login page after a successful demo sign-in.
+// If missing, this page was opened directly without logging in — send them back.
+if (sessionStorage.getItem('mcc_worker_authed') !== 'true') {
+  window.location.href = 'authority-login.html';
+}
+const LOGGED_IN_WARD_ID = sessionStorage.getItem('mcc_worker_ward_id');
+const LOGGED_IN_WARD_NAME = sessionStorage.getItem('mcc_worker_ward_name') || '';
+
+function workerLogout() {
+  sessionStorage.removeItem('mcc_worker_authed');
+  sessionStorage.removeItem('mcc_worker_ward_id');
+  sessionStorage.removeItem('mcc_worker_ward_name');
+  window.location.href = 'index.html';
+}
+
+// ===================== DATA =====================
+// This list must stay in sync with MYSURU_LOCALITIES in script.js and
+// LOCALITY_TO_WARD in the Apps Script backend — same areas, same ward
+// groupings, so a complaint posted from report.html lands in the right
+// ward bucket here.
+const WARDS = [
+  { id: 1, name: 'Rajiv Nagar / Udayagiri / Srirampura', j: 'Mysuru City Corporation' },
+  { id: 2, name: 'Devaraja Mohalla / Vontikoppal', j: 'Mysuru City Corporation' },
+  { id: 3, name: 'Kuvempunagar', j: 'Mysuru City Corporation' },
+  { id: 4, name: 'Vijayanagar / Bogadi / Dattagalli', j: 'Mysuru City Corporation' },
+  { id: 5, name: 'Hebbal / Hootagalli', j: 'Mysuru City Corporation' },
+  { id: 6, name: 'Saraswathipuram / Jayalakshmipuram', j: 'Mysuru City Corporation' },
+  { id: 7, name: 'Lakshmipuram', j: 'Mysuru City Corporation' },
+  { id: 8, name: 'Gokulam / Metagalli / Yadavgiri', j: 'Mysuru City Corporation' },
+  { id: 9, name: 'JP Nagar / Bannimantap', j: 'Mysuru City Corporation' },
+  { id: 10, name: 'Vidyaranyapuram / Ramakrishnanagar / Alanahalli / Kadakola', j: 'Mysuru City Corporation' },
+  { id: 0, name: 'Other Mysuru Area', j: 'Mysuru City Corporation' },
+];
+
+const WORKERS = [
+  { id: 'w1', name: 'Ramesh Kumar', ward: 'Vijayanagar / Bogadi / Dattagalli', load: 3 },
+  { id: 'w2', name: 'Lakshmi Devi', ward: 'Kuvempunagar', load: 1 },
+  { id: 'w3', name: 'Prakash Rao', ward: 'Hebbal / Hootagalli', load: 4 },
+  { id: 'w4', name: 'Suma N', ward: 'Rajiv Nagar / Udayagiri / Srirampura', load: 2 },
+  { id: 'w5', name: 'Manjunath S', ward: 'Devaraja Mohalla / Vontikoppal', load: 0 },
+];
+
+const CATEGORIES = ['Pothole', 'Garbage Dumping', 'Drainage Blockage', 'Streetlight Fault', 'Water Leakage', 'Damaged Footpath', 'Open Manhole', 'Construction Debris'];
+
+function randomMysuruCoord() {
+  return {
+    lat: 12.27 + Math.random() * 0.08,
+    lng: 76.60 + Math.random() * 0.10
+  };
+}
+
+function daysAgo(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  d.setHours(d.getHours() - Math.floor(Math.random() * 12));
+  return d.toISOString();
+}
+
+// Complaints now live in the Google Sheet backend and are loaded by
+// loadComplaints() at boot (see bottom of this script). This starts
+// empty so the dashboard has something to render before that fetch
+// resolves.
+let complaints = [];
+
+// Converts a row from the Sheet (via api.js) into the shape the
+// rest of this dashboard already expects.
+function mapSheetComplaint(row) {
+  return {
+    id: row.id,
+    category: row.category,
+    conf: 90, // AI confidence isn't tracked by the backend yet — placeholder until the classifier is wired in
+    wardId: row.wardId,
+    status: row.status,
+    created: row.timestamp,
+    desc: row.description,
+    citizen: 'Citizen', // no name is collected yet — citizens are identified by an anonymous per-browser token
+    priority: row.priority || 'medium',
+    lat: row.lat,
+    lng: row.lng,
+    assigned: row.assignedWorkerId || null,
+    community: row.community,
+    evidence: row.evidence,
+    photos: row.photos || []
+  };
+}
+
+function loadComplaints() {
+  if (typeof MycApi === 'undefined' || !MycApi.isConfigured()) {
+    document.getElementById('content').innerHTML =
+      '<div class="text-center text-zinc-500 py-24">The complaint backend isn\'t connected yet — set MYC_API_URL in api.js.</div>';
+    return Promise.resolve();
+  }
+  return MycApi.listComplaints({})
+    .then(result => {
+      if (!result || result.error) { complaints = []; return; }
+      complaints = (result.complaints || []).map(mapSheetComplaint);
+    })
+    .catch(() => { complaints = []; });
+}
+
+let map = null;
+let markersLayer = null;
+let selectedWorkerId = null;
+let assignTargetId = null;
+let currentView = 'dashboard';
+let inboxTab = 'all'; // all | new | active | pending | completed
+
+// ===================== HELPERS =====================
+function wardName(id) {
+  return WARDS.find(w => w.id === id)?.name || 'Unknown';
+}
+function wardLabel(id) {
+  const w = WARDS.find(x => x.id === id);
+  if (!w) return 'Unknown';
+  return `${w.name} (Ward ${w.id})`;
+}
+function jurisdiction(id) {
+  return WARDS.find(w => w.id === id)?.j || 'Mysuru City Corporation';
+}
+function ageStr(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  if (d > 0) return `${d}d ${h}h`;
+  return `${h}h`;
+}
+function statusBadge(status) {
+  const map = {
+    PENDING: { emoji: '🔴', label: 'PENDING', cls: 'bg-red-950 text-red-400 border-red-800' },
+    ACCEPTED: { emoji: '🔵', label: 'ACCEPTED', cls: 'bg-blue-950 text-blue-400 border-blue-800' },
+    IN_PROGRESS: { emoji: '🟡', label: 'IN PROGRESS', cls: 'bg-yellow-950 text-yellow-400 border-yellow-800' },
+    COMPLETION_SUBMITTED: { emoji: '🟠', label: 'COMPLETION SUBMITTED', cls: 'bg-orange-950 text-orange-400 border-orange-800' },
+    VERIFIED: { emoji: '🟢', label: 'VERIFIED', cls: 'bg-emerald-950 text-emerald-400 border-emerald-800' },
+  };
+  const s = map[status] || map.PENDING;
+  return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${s.cls}">${s.emoji} ${s.label}</span>`;
+}
+function statusColor(status) {
+  return { PENDING: '#ef4444', ACCEPTED: '#3b82f6', IN_PROGRESS: '#eab308', COMPLETION_SUBMITTED: '#f97316', VERIFIED: '#22c55e' }[status] || '#ef4444';
+}
+function stats() {
+  return {
+    total: complaints.length,
+    pending: complaints.filter(c => c.status === 'PENDING').length,
+    accepted: complaints.filter(c => c.status === 'ACCEPTED').length,
+    inProgress: complaints.filter(c => c.status === 'IN_PROGRESS').length,
+    completion: complaints.filter(c => c.status === 'COMPLETION_SUBMITTED').length,
+    verified: complaints.filter(c => c.status === 'VERIFIED').length,
+    community: complaints.filter(c => c.community).length,
+  };
+}
+
+function inboxTabCounts() {
+  return {
+    all: complaints.length,
+    new: complaints.filter(c => c.status === 'PENDING').length,
+    active: complaints.filter(c => ['ACCEPTED', 'IN_PROGRESS', 'COMPLETION_SUBMITTED'].includes(c.status)).length,
+    pending: complaints.filter(c => c.status === 'PENDING').length,
+    completed: complaints.filter(c => c.status === 'VERIFIED').length,
+  };
+}
+
+function complaintsForInboxTab(tab) {
+  if (tab === 'new' || tab === 'pending') return complaints.filter(c => c.status === 'PENDING');
+  if (tab === 'active') return complaints.filter(c => ['ACCEPTED', 'IN_PROGRESS', 'COMPLETION_SUBMITTED'].includes(c.status));
+  if (tab === 'completed') return complaints.filter(c => c.status === 'VERIFIED');
+  return complaints.slice();
+}
+
+// ===================== VIEWS =====================
+function showView(view) {
+  // Guard: removed views redirect safely
+  if (['active', 'pending', 'wards', 'workers', 'verification'].includes(view)) {
+    if (view === 'active') { inboxTab = 'active'; view = 'inbox'; }
+    else if (view === 'pending' || view === 'verification') { inboxTab = view === 'verification' ? 'active' : 'pending'; view = 'inbox'; }
+    else { view = 'dashboard'; }
+  }
+
+  currentView = view;
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.className = 'nav-btn px-3.5 py-2 rounded-lg hover:bg-zinc-800 text-zinc-400 whitespace-nowrap';
+    if (b.dataset.view === view) b.className = 'nav-btn px-3.5 py-2 rounded-lg bg-emerald-900 text-emerald-400 font-semibold whitespace-nowrap';
+  });
+  const titles = {
+    dashboard: 'Mysuru Civic Operations Control Center',
+    inbox: 'Complaint Inbox — Received Reports',
+    map: 'Interactive Mysuru Civic Map',
+    community: 'Community / Initiator Resolved',
+    analytics: 'Analytics & Hotspots'
+  };
+  document.getElementById('page-title').textContent = titles[view] || view;
+  const el = document.getElementById('content');
+  if (view === 'dashboard') el.innerHTML = renderDashboard();
+  else if (view === 'inbox') el.innerHTML = renderInbox();
+  else if (view === 'map') el.innerHTML = renderMapOnly();
+  else if (view === 'community') el.innerHTML = renderCommunity();
+  else if (view === 'analytics') el.innerHTML = renderAnalytics();
+  setTimeout(() => {
+    if (document.getElementById('mysuru-map')) initMap('mysuru-map');
+  }, 50);
+}
+
+function renderDashboard() {
+  const s = stats();
+  return `
+  <div class="grid grid-cols-7 gap-3 mb-6">
+    ${kpi('Total', s.total, 'text-emerald-400')}
+    ${kpi('Pending', s.pending, 'text-red-400')}
+    ${kpi('Accepted', s.accepted, 'text-blue-400')}
+    ${kpi('In Progress', s.inProgress, 'text-yellow-400')}
+    ${kpi('To Verify', s.completion, 'text-orange-400')}
+    ${kpi('Verified', s.verified, 'text-emerald-400')}
+    ${kpi('Community', s.community, 'text-purple-400')}
+  </div>
+
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl mb-6 overflow-hidden">
+    <div class="px-5 py-3 border-b border-zinc-800 flex items-center justify-between">
+      <div class="font-medium flex items-center gap-2">📍 Live Civic Situation — Mysuru</div>
+      <div class="flex gap-4 text-xs text-zinc-400">
+        <span>🔴 PENDING</span><span>🔵 ACCEPTED</span><span>🟡 IN PROGRESS</span><span>🟢 VERIFIED</span>
+      </div>
+    </div>
+    <div id="mysuru-map" style="height:420px"></div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+      <h3 class="font-medium mb-4">Area × Problem Concentration</h3>
+      ${renderMiniBars()}
+    </div>
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+      <h3 class="font-medium mb-4">Recent / Urgent</h3>
+      <div class="space-y-3 max-h-[280px] overflow-auto">
+        ${complaints.slice(0, 6).map(c => complaintRow(c)).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function kpi(label, val, color) {
+  return `<div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+    <div class="text-xs text-zinc-500 mb-1">${label}</div>
+    <div class="text-3xl font-bold ${color}">${val}</div>
+  </div>`;
+}
+
+function renderMiniBars() {
+  const byWard = {};
+  complaints.forEach(c => {
+    const n = wardLabel(c.wardId);
+    byWard[n] = (byWard[n] || 0) + 1;
+  });
+  const max = Math.max(...Object.values(byWard), 1);
+  return Object.entries(byWard).map(([name, count]) => `
+    <div class="mb-2">
+      <div class="flex justify-between text-xs mb-1"><span>${name}</span><span class="text-zinc-400">${count}</span></div>
+      <div class="h-2 bg-zinc-800 rounded-full overflow-hidden">
+        <div class="h-full bg-emerald-500 rounded-full" style="width:${(count/max)*100}%"></div>
+      </div>
+    </div>`).join('');
+}
+
+function complaintRow(c) {
+  return `<div class="flex items-center justify-between p-3 rounded-lg bg-zinc-850/50 border border-zinc-800 hover:border-zinc-600 cursor-pointer" onclick="openDetail('${c.id}')">
+    <div>
+      <div class="text-sm font-medium">${c.category} <span class="text-zinc-500 font-mono text-xs">#${c.id}</span></div>
+      <div class="text-xs text-zinc-500">${wardLabel(c.wardId)} · ${ageStr(c.created)} ago</div>
+    </div>
+    ${statusBadge(c.status)}
+  </div>`;
+}
+
+function setInboxTab(tab) {
+  inboxTab = tab;
+  if (currentView === 'inbox') {
+    document.getElementById('content').innerHTML = renderInbox();
+  }
+}
+
+function renderInbox() {
+  const counts = inboxTabCounts();
+  const tabBase = 'inbox-tab px-4 py-2 rounded-lg border border-zinc-700 text-sm text-zinc-300 hover:border-zinc-500 transition-colors';
+  const items = getFiltered();
+
+  return `
+  <!-- Internal Inbox Tabs -->
+  <div class="flex flex-wrap gap-2 mb-5">
+    <button class="${tabBase} ${inboxTab === 'all' ? 'active' : ''}" onclick="setInboxTab('all')">All Complaints <span class="text-zinc-500">(${counts.all})</span></button>
+    <button class="${tabBase} ${inboxTab === 'new' ? 'active' : ''}" onclick="setInboxTab('new')">New / Received <span class="text-zinc-500">(${counts.new})</span></button>
+    <button class="${tabBase} ${inboxTab === 'active' ? 'active' : ''}" onclick="setInboxTab('active')">Active Complaints <span class="text-zinc-500">(${counts.active})</span></button>
+    <button class="${tabBase} ${inboxTab === 'pending' ? 'active' : ''}" onclick="setInboxTab('pending')">Pending Complaints <span class="text-zinc-500">(${counts.pending})</span></button>
+    <button class="${tabBase} ${inboxTab === 'completed' ? 'active' : ''}" onclick="setInboxTab('completed')">Completed Complaints <span class="text-zinc-500">(${counts.completed})</span></button>
+  </div>
+
+  <div class="flex gap-3 mb-5 flex-wrap">
+    <select id="f-status" onchange="applyFilters()" class="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm">
+      <option value="All">All Statuses</option>
+      <option value="PENDING">🔴 PENDING</option>
+      <option value="ACCEPTED">🔵 ACCEPTED</option>
+      <option value="IN_PROGRESS">🟡 IN PROGRESS</option>
+      <option value="COMPLETION_SUBMITTED">🟠 COMPLETION SUBMITTED</option>
+      <option value="VERIFIED">🟢 VERIFIED</option>
+    </select>
+    <select id="f-cat" onchange="applyFilters()" class="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm">
+      <option value="All">All Categories</option>
+      ${CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('')}
+    </select>
+    <select id="f-ward" onchange="applyFilters()" class="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm">
+      <option value="All">All Wards</option>
+      ${WARDS.map(w => `<option value="${w.id}">${w.name} (Ward ${w.id})</option>`).join('')}
+    </select>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="inbox-grid">
+    ${items.map(c => complaintCard(c)).join('') || '<p class="text-zinc-500 col-span-3 text-center py-16">No complaints match filters.</p>'}
+  </div>`;
+}
+
+function complaintCard(c) {
+  return `
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 card-hover transition-colors">
+    <div class="flex justify-between gap-3">
+      <div class="min-w-0">
+        <div class="font-mono text-[10px] text-zinc-500">#${c.id}</div>
+        <div class="font-semibold text-base mt-0.5 truncate">${c.category}</div>
+        <div class="text-xs text-zinc-400 mt-1">📍 ${wardLabel(c.wardId)}</div>
+        <div class="text-[11px] text-zinc-500">${jurisdiction(c.wardId)}</div>
+      </div>
+      <div class="w-16 h-16 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-2xl shrink-0">
+        ${c.category.includes('Pothole') ? '🕳️' : c.category.includes('Garbage') ? '🗑️' : c.category.includes('Drain') ? '🚰' : c.category.includes('Street') ? '💡' : '⚠️'}
+      </div>
+    </div>
+    <div class="flex items-center justify-between mt-3">
+      ${statusBadge(c.status)}
+      <span class="text-xs text-amber-400">⏱ ${ageStr(c.created)} ago</span>
+    </div>
+    <div class="text-[11px] text-emerald-400/80 mt-2">AI: ${c.category} · ${c.conf}%</div>
+    ${c.photos && c.photos.length ? `<div class="text-[11px] text-zinc-400 mt-1">📷 ${c.photos.length} photo${c.photos.length > 1 ? 's' : ''} attached</div>` : ''}
+    ${c.assigned ? `<div class="text-[11px] text-blue-400 mt-1">Worker: ${WORKERS.find(w=>w.id===c.assigned)?.name || c.assigned}</div>` : ''}
+    ${c.community ? `<div class="text-[11px] text-purple-400 mt-1">👥 Community resolved</div>` : ''}
+    <div class="flex gap-2 mt-4">
+      <button onclick="openDetail('${c.id}')" class="px-3 py-1.5 text-xs rounded-lg border border-zinc-600 hover:bg-zinc-800">VIEW</button>
+      ${c.status === 'PENDING' ? `<button onclick="acceptComplaint('${c.id}')" class="px-3 py-1.5 text-xs rounded-lg bg-blue-600 hover:bg-blue-500">ACCEPT</button>` : ''}
+      ${(c.status === 'PENDING' || c.status === 'ACCEPTED') ? `<button onclick="openWorkerModal('${c.id}')" class="px-3 py-1.5 text-xs rounded-lg bg-yellow-600 hover:bg-yellow-500">ASSIGN</button>` : ''}
+      ${c.status === 'COMPLETION_SUBMITTED' ? `<button onclick="verifyComplaint('${c.id}')" class="px-3 py-1.5 text-xs rounded-lg bg-emerald-600 hover:bg-emerald-500">VERIFY</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderMapOnly() {
+  return `<div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+    <div class="px-5 py-3 border-b border-zinc-800 flex justify-between items-center">
+      <span class="font-medium">Full Mysuru Civic Map</span>
+      <div class="flex gap-4 text-xs text-zinc-400"><span>🔴 PENDING</span><span>🔵 ACCEPTED</span><span>🟡 IN PROGRESS</span><span>🟢 VERIFIED</span></div>
+    </div>
+    <div id="mysuru-map" style="height:calc(100vh - 180px)"></div>
+  </div>`;
+}
+
+function renderCommunity() {
+  const items = complaints.filter(c => c.community);
+  return `<div class="mb-4 text-sm text-zinc-400">Complaints resolved by citizens / initiators — verify to avoid duplicate government work.</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      ${items.map(c => `
+        <div class="bg-zinc-900 border border-purple-900/50 rounded-xl p-5">
+          <div class="flex justify-between">
+            <div>
+              <div class="text-purple-400 text-xs font-medium mb-1">👥 COMMUNITY RESOLVED</div>
+              <div class="font-semibold">${c.category}</div>
+              <div class="text-xs text-zinc-400 mt-1">${wardLabel(c.wardId)} · ${jurisdiction(c.wardId)}</div>
+              <div class="text-xs text-zinc-500 mt-1">By: ${c.citizen}</div>
+            </div>
+            ${statusBadge(c.status)}
+          </div>
+          <div class="flex gap-2 mt-4">
+            <button onclick="openDetail('${c.id}')" class="px-3 py-1.5 text-xs rounded-lg border border-zinc-600">VIEW EVIDENCE</button>
+            ${c.status !== 'VERIFIED' ? `<button onclick="verifyComplaint('${c.id}')" class="px-3 py-1.5 text-xs rounded-lg bg-emerald-600">VERIFY & CLOSE</button>` : ''}
+          </div>
+        </div>`).join('') || '<p class="text-zinc-500">No community resolutions yet.</p>'}
+    </div>`;
+}
+
+function renderAnalytics() {
+  const byCat = {};
+  CATEGORIES.forEach(c => byCat[c] = 0);
+  complaints.forEach(c => { byCat[c.category] = (byCat[c.category] || 0) + 1; });
+  const max = Math.max(...Object.values(byCat), 1);
+  return `
+  <div class="grid grid-cols-2 gap-6">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+      <h3 class="font-medium mb-4">Complaints by Category</h3>
+      ${Object.entries(byCat).filter(([,v])=>v>0).map(([k,v]) => `
+        <div class="mb-3">
+          <div class="flex justify-between text-sm mb-1"><span>${k}</span><span>${v}</span></div>
+          <div class="h-3 bg-zinc-800 rounded-full"><div class="h-full bg-blue-500 rounded-full" style="width:${(v/max)*100}%"></div></div>
+        </div>`).join('')}
+    </div>
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+      <h3 class="font-medium mb-4">By Status</h3>
+      ${Object.entries(stats()).filter(([k])=>!['total','community'].includes(k)).map(([k,v]) => `
+        <div class="flex justify-between py-2 border-b border-zinc-800 text-sm">
+          <span class="capitalize">${k.replace(/([A-Z])/g,' $1')}</span><strong>${v}</strong>
+        </div>`).join('')}
+    </div>
+  </div>
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mt-6">
+    <h3 class="font-medium mb-4">Ward Hotspot Table</h3>
+    <table class="w-full text-sm">
+      <thead><tr class="text-zinc-500 text-left border-b border-zinc-800">
+        <th class="py-2">Area / Ward</th><th>Total</th><th>Pending</th><th>In Progress</th><th>Verified</th>
+      </tr></thead>
+      <tbody>
+        ${WARDS.map(w => {
+          const list = complaints.filter(c => c.wardId === w.id);
+          return `<tr class="border-b border-zinc-800/50">
+            <td class="py-2.5">${w.name} (Ward ${w.id})</td>
+            <td>${list.length}</td>
+            <td class="text-red-400">${list.filter(c=>c.status==='PENDING').length}</td>
+            <td class="text-yellow-400">${list.filter(c=>c.status==='IN_PROGRESS').length}</td>
+            <td class="text-emerald-400">${list.filter(c=>c.status==='VERIFIED').length}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// ===================== MAP =====================
+function initMap(containerId) {
+  if (map) { map.remove(); map = null; }
+  map = L.map(containerId, { zoomControl: true }).setView([12.305, 76.645], 12);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OSM &copy; CARTO',
+    maxZoom: 19
+  }).addTo(map);
+  markersLayer = L.layerGroup().addTo(map);
+  complaints.filter(c => c.lat != null && c.lng != null).forEach(c => {
+    const marker = L.circleMarker([c.lat, c.lng], {
+      radius: 9,
+      fillColor: statusColor(c.status),
+      color: '#fff',
+      weight: 1.5,
+      opacity: 1,
+      fillOpacity: 0.9
+    });
+    marker.bindPopup(`
+      <div style="color:#111;min-width:200px;font-family:system-ui">
+        <div style="font-weight:600;margin-bottom:4px">${c.category}</div>
+        <div style="font-size:12px;margin-bottom:6px">#${c.id} · ${wardLabel(c.wardId)}</div>
+        <div style="font-size:12px;margin-bottom:8px">Status: <strong>${c.status.replace('_',' ')}</strong></div>
+        <div style="font-size:11px;color:#666">Reported ${ageStr(c.created)} ago</div>
+        <button onclick="openDetail('${c.id}')" style="margin-top:8px;width:100%;padding:6px;background:#2f7d4f;color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px">VIEW COMPLAINT</button>
+      </div>
+    `);
+    marker.addTo(markersLayer);
+  });
+}
+
+// ===================== ACTIONS =====================
+function getFiltered() {
+  let list = complaintsForInboxTab(inboxTab);
+  const status = document.getElementById('f-status')?.value || 'All';
+  const cat = document.getElementById('f-cat')?.value || 'All';
+  const ward = document.getElementById('f-ward')?.value || 'All';
+  const q = (document.getElementById('global-search')?.value || '').toLowerCase();
+  return list.filter(c => {
+    if (status !== 'All' && c.status !== status) return false;
+    if (cat !== 'All' && c.category !== cat) return false;
+    if (ward !== 'All' && String(c.wardId) !== ward) return false;
+    if (q && !(c.id.toLowerCase().includes(q) || c.category.toLowerCase().includes(q) || wardName(c.wardId).toLowerCase().includes(q) || wardLabel(c.wardId).toLowerCase().includes(q) || (c.desc||'').toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function applyFilters() {
+  if (currentView === 'inbox') {
+    // Preserve current dropdown values while re-rendering
+    const status = document.getElementById('f-status')?.value || 'All';
+    const cat = document.getElementById('f-cat')?.value || 'All';
+    const ward = document.getElementById('f-ward')?.value || 'All';
+    document.getElementById('content').innerHTML = renderInbox();
+    const sEl = document.getElementById('f-status');
+    const cEl = document.getElementById('f-cat');
+    const wEl = document.getElementById('f-ward');
+    if (sEl) sEl.value = status;
+    if (cEl) cEl.value = cat;
+    if (wEl) wEl.value = ward;
+    // Re-apply filter on grid only without full reset of tab
+    const grid = document.getElementById('inbox-grid');
+    if (grid) {
+      const items = getFiltered();
+      grid.innerHTML = items.map(c => complaintCard(c)).join('') || '<p class="text-zinc-500 col-span-3 text-center py-16">No complaints match filters.</p>';
+    }
+  }
+}
+
+function acceptComplaint(id) {
+  const c = complaints.find(x => x.id === id);
+  if (!c || c.status !== 'PENDING') return alert('Invalid: only PENDING can be accepted');
+  c.status = 'ACCEPTED'; // optimistic UI update
+  refresh();
+  openDetail(id);
+  MycApi.acceptComplaint(id).catch(() => alert('Saved locally, but failed to sync with the sheet. Refresh to check.'));
+}
+
+function openWorkerModal(id) {
+  const c = complaints.find(x => x.id === id);
+  if (!c) return;
+  if (c.status !== 'PENDING' && c.status !== 'ACCEPTED') return alert('Accept complaint before assigning');
+  assignTargetId = id;
+  selectedWorkerId = null;
+  document.getElementById('modal-complaint-info').textContent = `#${c.id} · ${c.category} · ${wardLabel(c.wardId)}`;
+  document.getElementById('worker-list').innerHTML = WORKERS.map(w => `
+    <div onclick="selectWorker('${w.id}')" id="worker-${w.id}" class="p-3 rounded-xl border border-zinc-700 cursor-pointer hover:border-yellow-600 transition-colors">
+      <div class="flex justify-between">
+        <div>
+          <div class="font-medium">${w.name}</div>
+          <div class="text-xs text-zinc-500">Primary area: ${w.ward}</div>
+        </div>
+        <div class="text-right text-sm">
+          <div class="text-yellow-400 font-semibold">${w.load} active</div>
+          <div class="text-[10px] text-zinc-500">workload</div>
+        </div>
+      </div>
+    </div>`).join('');
+  document.getElementById('confirm-assign-btn').disabled = true;
+  const modal = document.getElementById('worker-modal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function selectWorker(id) {
+  selectedWorkerId = id;
+  WORKERS.forEach(w => {
+    const el = document.getElementById('worker-' + w.id);
+    if (el) el.className = w.id === id
+      ? 'p-3 rounded-xl border border-yellow-500 bg-yellow-950/40 cursor-pointer'
+      : 'p-3 rounded-xl border border-zinc-700 cursor-pointer hover:border-yellow-600 transition-colors';
+  });
+  document.getElementById('confirm-assign-btn').disabled = false;
+}
+
+function confirmAssign() {
+  if (!assignTargetId || !selectedWorkerId) return;
+  const c = complaints.find(x => x.id === assignTargetId);
+  if (c.status === 'PENDING') c.status = 'ACCEPTED';
+  c.status = 'IN_PROGRESS';
+  c.assigned = selectedWorkerId;
+  const w = WORKERS.find(x => x.id === selectedWorkerId);
+  if (w) w.load += 1;
+  const targetId = assignTargetId;
+  const workerId = selectedWorkerId;
+  closeWorkerModal();
+  refresh();
+  openDetail(targetId);
+  MycApi.assignWorker(targetId, workerId).catch(() => alert('Saved locally, but failed to sync with the sheet. Refresh to check.'));
+}
+
+function closeWorkerModal() {
+  const modal = document.getElementById('worker-modal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+
+function verifyComplaint(id) {
+  const c = complaints.find(x => x.id === id);
+  if (!c) return;
+  if (c.status !== 'COMPLETION_SUBMITTED' && !c.community) {
+    return alert('Only COMPLETION_SUBMITTED or community resolutions can be verified');
+  }
+  c.status = 'VERIFIED';
+  refresh();
+  openDetail(id);
+  MycApi.verify(id).catch(() => alert('Saved locally, but failed to sync with the sheet. Refresh to check.'));
+}
+
+function markCompletion(id) {
+  const c = complaints.find(x => x.id === id);
+  if (!c || c.status !== 'IN_PROGRESS') return alert('Only IN PROGRESS can submit completion');
+  c.status = 'COMPLETION_SUBMITTED';
+  c.evidence = true;
+  refresh();
+  openDetail(id);
+  MycApi.markCompletion(id).catch(() => alert('Saved locally, but failed to sync with the sheet. Refresh to check.'));
+}
+
+function openDetail(id) {
+  const c = complaints.find(x => x.id === id);
+  if (!c) return;
+  const worker = WORKERS.find(w => w.id === c.assigned);
+  document.getElementById('detail-body').innerHTML = `
+    <div class="space-y-5">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <div class="font-mono text-xs text-zinc-500">#${c.id}</div>
+          <h3 class="text-xl font-semibold mt-1">${c.category}</h3>
+        </div>
+        ${statusBadge(c.status)}
+      </div>
+
+      <div class="aspect-video bg-zinc-800 rounded-xl flex items-center justify-center text-5xl border border-zinc-700">
+        ${c.category.includes('Pothole') ? '🕳️' : c.category.includes('Garbage') ? '🗑️' : c.category.includes('Drain') ? '🚰' : c.category.includes('Street') ? '💡' : c.category.includes('Manhole') ? '⚠️' : '📷'}
+      </div>
+
+      ${c.photos && c.photos.length ? `
+      <div>
+        <div class="text-xs text-zinc-500 mb-2 uppercase tracking-wide">Citizen-submitted photos (${c.photos.length})</div>
+        <div class="grid grid-cols-3 gap-2">
+          ${c.photos.map(url => `
+            <a href="${url}" target="_blank" rel="noopener" class="block aspect-square rounded-lg overflow-hidden border border-zinc-700 bg-zinc-800">
+              <img src="${url}" alt="Complaint photo" class="w-full h-full object-cover" loading="lazy"
+                   onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-xs text-zinc-500\\'>Failed to load</div>'">
+            </a>
+          `).join('')}
+        </div>
+      </div>` : `
+      <div class="text-xs text-zinc-500 italic">No photos were submitted with this complaint.</div>`}
+
+      ${c.evidence ? `<div class="aspect-video bg-zinc-800 rounded-xl flex items-center justify-center text-4xl border border-emerald-800">
+        <div class="text-center"><div class="text-3xl mb-2">✅</div><div class="text-sm text-emerald-400">Completion Evidence Uploaded</div></div>
+      </div>` : ''}
+
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div><div class="text-zinc-500 text-xs">Citizen</div><div>${c.citizen}</div></div>
+        <div><div class="text-zinc-500 text-xs">Priority</div><div class="uppercase text-amber-400">${c.priority}</div></div>
+        <div><div class="text-zinc-500 text-xs">Area / Ward</div><div>${wardLabel(c.wardId)}</div></div>
+        <div><div class="text-zinc-500 text-xs">Jurisdiction</div><div>${jurisdiction(c.wardId)}</div></div>
+        <div><div class="text-zinc-500 text-xs">GPS</div><div class="font-mono text-xs">${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}</div></div>
+        <div><div class="text-zinc-500 text-xs">Age</div><div>${ageStr(c.created)}</div></div>
+        <div><div class="text-zinc-500 text-xs">AI Classification</div><div class="text-emerald-400">${c.category} · ${c.conf}%</div></div>
+        <div><div class="text-zinc-500 text-xs">Assigned Worker</div><div>${worker ? worker.name : '—'}</div></div>
+      </div>
+
+      <p class="text-sm text-zinc-400 border-t border-zinc-800 pt-4">${c.desc}</p>
+
+      ${c.community ? `<div class="p-3 rounded-lg border border-purple-700 bg-purple-950/30 text-sm text-purple-300">👥 Flagged as community/initiator resolved — verify before closing government ticket.</div>` : ''}
+
+      <div class="space-y-2 pt-2 border-t border-zinc-800">
+        <div class="text-xs text-zinc-500 mb-2 font-medium uppercase tracking-wide">Actions (workflow enforced)</div>
+        ${c.status === 'PENDING' ? `<button onclick="acceptComplaint('${c.id}')" class="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-sm font-medium">ACCEPT COMPLAINT</button>` : ''}
+        ${(c.status === 'PENDING' || c.status === 'ACCEPTED') ? `<button onclick="openWorkerModal('${c.id}')" class="w-full py-2.5 rounded-lg bg-yellow-600 hover:bg-yellow-500 text-sm font-medium">ASSIGN WORKER → IN PROGRESS</button>` : ''}
+        ${c.status === 'IN_PROGRESS' ? `<button onclick="markCompletion('${c.id}')" class="w-full py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-sm font-medium">MARK COMPLETION SUBMITTED</button>` : ''}
+        ${c.status === 'COMPLETION_SUBMITTED' || (c.community && c.status !== 'VERIFIED') ? `<button onclick="verifyComplaint('${c.id}')" class="w-full py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">VERIFY → 🟢 COMPLETED</button>` : ''}
+        ${c.status === 'VERIFIED' ? `<div class="text-center text-emerald-400 text-sm py-2">✓ Fully verified & closed</div>` : ''}
+      </div>
+
+      <div class="border-t border-zinc-800 pt-4">
+        <div class="text-xs text-zinc-500 mb-3 uppercase tracking-wide">Timeline</div>
+        <div class="space-y-2 text-xs text-zinc-400">
+          <div>📥 Registered — ${new Date(c.created).toLocaleString()}</div>
+          ${c.status !== 'PENDING' ? `<div>🔵 Accepted by authority</div>` : ''}
+          ${c.assigned ? `<div>🟡 Assigned to ${worker?.name}</div>` : ''}
+          ${c.evidence ? `<div>📷 Completion evidence uploaded</div>` : ''}
+          ${c.status === 'VERIFIED' ? `<div>🟢 Verified & closed</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('detail-drawer').classList.remove('translate-x-full');
+}
+
+function closeDetail() {
+  document.getElementById('detail-drawer').classList.add('translate-x-full');
+}
+
+function refresh() {
+  showView(currentView);
+}
+
+// boot
+loadComplaints().then(() => {
+  var label = document.getElementById('logged-in-ward-label');
+  if (label && LOGGED_IN_WARD_NAME) {
+    label.textContent = 'Ward ' + LOGGED_IN_WARD_ID + ' — ' + LOGGED_IN_WARD_NAME;
+  }
+
+  showView('inbox');
+
+  // Pre-filter the inbox to the ward this officer logged in for.
+  if (LOGGED_IN_WARD_ID !== null && LOGGED_IN_WARD_ID !== '') {
+    var wardSelect = document.getElementById('f-ward');
+    if (wardSelect) {
+      wardSelect.value = LOGGED_IN_WARD_ID;
+      applyFilters();
+    }
+  }
+});
+</script>
+</body>
+</html>

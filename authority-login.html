@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Authority Sign In — Mysuru Civic Connect</title>
+<meta name="description" content="Sign in as an authority to manage complaints for your ward.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="portal.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container navbar">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/>
+          <circle cx="12" cy="10" r="2.5"/>
+        </svg>
+      </span>
+      Mysuru Civic Connect
+    </a>
+  </div>
+</header>
+
+<main class="portal-main">
+  <div class="container login-wrap">
+
+    <a href="portal.html" class="back-link login-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      Back
+    </a>
+
+    <div class="portal-card portal-card--authority login-card">
+      <div class="portal-card-art portal-card-art--dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6l-8-3Z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="portal-card-badge portal-card-badge--authority">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6l-8-3Z"/></svg>
+      </div>
+      <div class="portal-card-body">
+        <h2>Authority <span class="accent-authority">Sign In</span></h2>
+        <div class="portal-underline portal-underline--authority"></div>
+        <p>Select your ward and sign in to view and manage that ward's complaints.</p>
+
+        <form id="authorityForm" class="authority-form" novalidate>
+          <div class="field">
+            <label for="authUsername" class="visually-hidden">Username</label>
+            <input type="text" class="text-input authority-input" id="authUsername" name="username" placeholder="Username" autocomplete="username">
+          </div>
+          <div class="field">
+            <label for="authPassword" class="visually-hidden">Password</label>
+            <input type="password" class="text-input authority-input" id="authPassword" name="password" placeholder="Password" autocomplete="current-password">
+          </div>
+          <div class="field">
+            <label for="authWard" class="visually-hidden">Ward</label>
+            <select class="text-input authority-input" id="authWard" name="ward" required>
+              <option value="" disabled selected>Select your ward...</option>
+              <!-- populated by authority-login.js -->
+            </select>
+          </div>
+
+          <p class="field-hint authority-error" id="authError" style="display:none;"></p>
+
+          <button type="submit" class="btn btn-primary btn-lg portal-cta portal-cta--authority" id="authSubmitBtn">
+            Sign In →
+          </button>
+        </form>
+
+        <p class="portal-note">Demo credentials — Username: <code>authority</code> · Password: <code>mysuru2026</code></p>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div>
+      <p class="footer-brand">Mysuru Civic Connect</p>
+      <p class="footer-tagline">Building a more connected Mysuru.</p>
+    </div>
+    <p class="footer-copy">© 2026 Mysuru Civic Connect</p>
+  </div>
+</footer>
+
+<script src="authority-login.js"></script>
+</body>
+</html>

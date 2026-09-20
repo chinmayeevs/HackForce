@@ -1,0 +1,226 @@
+/* =========================================================
+   Mysuru Civic Connect — My Complaints
+   Loads after style.css and reuses its variables/resets/
+   .container/.page-header/.back-link/.subtitle/.site-footer.
+   This file only styles what's unique to this page: the
+   filter bar, complaint cards, status badges and the
+   progress tracker (class names below are also written
+   directly by complaints.js — keep them in sync).
+   ========================================================= */
+
+.complaints-wrap {
+  position: relative;
+  max-width: 760px;
+  padding: 8px 24px 72px;
+}
+
+/* ---- filters ---- */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.filter-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.filter-btn.active {
+  background: var(--color-accent-dark);
+  color: #ffffff;
+  border-color: var(--color-accent-dark);
+}
+
+/* ---- complaint cards ---- */
+.complaint-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.complaint-card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.complaint-card:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-card);
+}
+
+.complaint-card.expanded {
+  border-color: var(--color-accent);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.complaint-title {
+  font-weight: 600;
+  font-size: 0.98rem;
+  margin: 0 0 4px;
+  color: var(--color-text);
+}
+
+.complaint-id {
+  font-size: 0.78rem;
+  color: var(--color-text-faint);
+}
+
+.complaint-date {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-top: 8px;
+}
+
+.complaint-photo-count {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+/* ---- status badges ----
+   Pending: neutral · Accepted: info blue · Rejected: danger ·
+   Completed: accent green. Blue stays blue here on purpose —
+   it reads as "in the system, not yet resolved", distinct from
+   the green that means done. */
+.status-badge {
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 4px 11px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.status-badge.pending {
+  background: var(--color-bg-muted-2);
+  color: var(--color-text-muted);
+}
+
+.status-badge.accepted {
+  background: var(--color-info-tint);
+  color: var(--color-info);
+}
+
+.status-badge.rejected {
+  background: var(--color-danger-tint);
+  color: var(--color-danger);
+}
+
+.status-badge.completed {
+  background: var(--color-success-tint);
+  color: var(--color-success);
+}
+
+.rejected-note {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-tint);
+  border-left: 3px solid var(--color-danger);
+  font-size: 0.85rem;
+  color: var(--color-danger);
+}
+
+/* ---- progress tracker, shown when a card is expanded ---- */
+.progress-track {
+  display: none;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.complaint-card.expanded .progress-track {
+  display: block;
+}
+
+.progress-steps {
+  display: flex;
+  align-items: flex-start;
+}
+
+.step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  font-size: 0.74rem;
+  color: var(--color-text-faint);
+}
+
+.step .dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  margin: 0 auto 6px;
+  border: 2px solid var(--color-border-strong);
+}
+
+.step.done .dot {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.step.current .dot {
+  background: #ffffff;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-tint);
+}
+
+.step.done,
+.step.current {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 55%;
+  width: 90%;
+  height: 2px;
+  background: var(--color-border-strong);
+  z-index: -1;
+}
+
+.step.done:not(:last-child)::after {
+  background: var(--color-accent);
+}
+
+/* ---- empty / loading states ---- */
+.empty-message,
+.empty-state {
+  text-align: center;
+  color: var(--color-text-faint);
+  margin-top: 8px;
+}
+
+@media (max-width: 480px) {
+  .complaints-wrap { padding-inline: 18px; }
+  .step { font-size: 0.68rem; }
+}
